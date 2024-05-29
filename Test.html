@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Animation for Aegisub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            padding: 20px;
+            display: flex;
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+        }
+        .container {
+            max-width: 600px; 
+            overflow-x: auto; 
+        }
+        .output {
+            white-space: pre-wrap;
+            font-family: monospace;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            height: 200px;
+            overflow: auto;
+        }
+        .preview {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .copy-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .copy-button:hover {
+            background-color: #45a049;
+        }
+        .color-spectrum {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .color-spectrum div {
+            width: 30px;
+            height: 30px;
+            margin: 5px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .color-spectrum div:hover {
+            transform: scale(1.1);
+        }
+        .result {
+            margin-top: 20px;
+            max-width: 100%; 
+            overflow-x: auto; 
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            animation: rainbow 10s linear infinite;
+            background: linear-gradient(to right, 
+                #FF0000,
+                #FFA500, 
+                #FFFF00,
+                #008000, 
+                #0000FF,
+                #4B0082,
+                #800080 
+            );
+            background-size: 1400% 100%;
+        }
+        .copy-button {
+                margin-top: 10px;
+                padding: 12px 24px;
+                background-color: #f11717;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background-color 0.3s ease;
+                font-size: 16px;
+                font-weight: bold;
+            }
+
+            .copy-button:hover {
+                background-color: #45a049;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="rainbow-text">GAE SUBS</h1>
+        <p class="head-sub-title">Made by Bruh clan</p>
+        <label for="delay">Delay between letters (ms):</label>
+        <input type="number" id="delay" name="delay" value="500"><br><br>
+
+        <label for="colorDuration">Duration of each color (ms):</label>
+        <input type="number" id="colorDuration" name="colorDuration" value="300"><br><br>
+
+        <label for="duration">Duration of the line (ms):</label>
+        <input type="number" id="duration" name="duration" value="1000"><br><br>
+
+        <label for="colors">Colors (comma-separated):</label>
+        <input type="text" id="colors" name="colors" value="red,green,blue,yellow"><br><br>
+
+        <div class="color-spectrum" id="colorSpectrum"></div>
+
+        <label for="text">Text to animate:</label>
+        <input type="text" id="text" name="text" value="Hello"><br><br>
+
+        <button onclick="generateAegisubCommands()" class="copy-button">Generate GAE SUBS</button>
+        <button onclick="copyToClipboard()" class="copy-button">Copy to Clipboard</button>
+        
+        <div class="result">
+            <div class="preview" id="preview"></div>
+            <div class="output" id="output"></div>
+        </div>
+    </div>
+
+    <script>
+        const colors = [
+            "#FF0000", "#FF4500", "#FFA500", "#FFFF00", "#ADFF2F", "#32CD32", "#00FF7F",
+            "#00FA9A", "#00FFFF", "#00BFFF", "#1E90FF", "#4169E1", "#0000FF", "#4B0082",
+            "#800080", "#9932CC", "#8A2BE2", "#9400D3", "#800000", "#A52A2A", "#D2691E",
+            "#FF69B4", "#FFC0CB", "#FFA07A", "#FFD700", "#FFFFE0", "#F0FFF0", "#F0FFFF"
+        ];
+
+        function generateColorSpectrum() {
+            const colorSpectrum = document.getElementById('colorSpectrum');
+            colors.forEach(color => {
+                const colorDiv = document.createElement('div');
+                colorDiv.style.backgroundColor = color;
+                colorDiv.addEventListener('click', () => setColor(color));
+                colorSpectrum.appendChild(colorDiv);
+            });
+        }
+
+        function setColor(color) {
+            const colorsInput = document.getElementById('colors');
+            if (colorsInput.value === "") {
+                colorsInput.value = color;
+            } else {
+                colorsInput.value += `,${color}`;
+            }
+        }
+
+        window.onload = generateColorSpectrum;
+
+        function generateAegisubCommands() {
+            const delay = parseInt(document.getElementById('delay').value);
+            const colorDuration = parseInt(document.getElementById('colorDuration').value) || 300;
+            const duration = parseInt(document.getElementById('duration').value);
+            const colors = document.getElementById('colors').value.split(',').map(color => color.trim());
+            const text = document.getElementById('text').value;
+            const output = document.getElementById('output');
+            const preview = document.getElementById('preview');
+            output.textContent = '';
+            preview.innerHTML = '';
+
+            let commands = '';
+
+            text.split('').forEach((letter, index) => {
+                let span = document.createElement('span');
+                span.textContent = letter;
+                preview.appendChild(span);
+
+                let currentTime = 0;
+                commands += `{`;
+
+                while (currentTime < duration) {
+                    for (let color of colors) {
+                        if (currentTime >= duration) break;
+                        let colorStartTime = currentTime;
+                        let colorEndTime = Math.min(currentTime + colorDuration, duration);
+
+                        commands += `\\t(${index * delay + colorStartTime},${index * delay + colorEndTime},\\c&H${formatColor(color)}&)`;
+
+                        setTimeout(() => {
+                            span.style.color = color;
+                        }, index * delay + colorStartTime);
+
+                        currentTime += colorDuration;
+                    }
+                }
+
+                commands += `}${letter}`;
+            });
+
+            output.textContent = commands.trim();
+        }
+
+        function formatColor(color) {
+    const hexPattern = /^&H([a-fA-F0-9]{6})&$/;
+    const match = hexPattern.exec(color);
+    if (match) {
+        return match[1].toUpperCase();
+    } else {
+        const ctx = document.createElement('canvas').getContext('2d');
+        ctx.fillStyle = color;
+        return ctx.fillStyle.substring(1).toUpperCase();
+    }
+}
+
+function copyToClipboard() {
+    const output = document.getElementById('output');
+    navigator.clipboard.writeText(output.textContent)
+        .then(() => alert('Commands copied to clipboard!'))
+        .catch(err => alert('Failed to copy commands: ', err));
+}
+</script>
+</body>
+</html>
