@@ -7,21 +7,31 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
             padding: 20px;
             display: flex;
             justify-content: center; 
             align-items: center; 
             min-height: 100vh;
             margin: 0;
+            animation: rainbow 10s linear infinite;
+            background: linear-gradient(to right, 
+                #FF0000,
+                #FFA500, 
+                #FFFF00,
+                #008000, 
+                #0000FF,
+                #4B0082,
+                #800080 
+            );
+            background-size: 1400% 100%;
         }
         .container {
             max-width: 600px;
             width: 100%;
-            background: white;
+            background: rgba(255, 255, 255, 0.9);
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         h1 {
             margin-top: 0;
@@ -44,13 +54,14 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
+            background-color: rgba(255, 255, 255, 0.8);
         }
         .output {
             white-space: pre-wrap;
             font-family: monospace;
             margin-top: 20px;
             padding: 10px;
-            background-color: #f8f8f8;
+            background-color: rgba(255, 255, 255, 0.8);
             border-radius: 5px;
             height: 200px;
             overflow: auto;
@@ -61,7 +72,7 @@
             font-weight: bold;
             margin: 15px 0;
             padding: 10px;
-            background: #f8f8f8;
+            background: rgba(255, 255, 255, 0.8);
             border-radius: 5px;
         }
         .result {
@@ -70,20 +81,27 @@
         .copy-button {
             margin-top: 15px;
             padding: 10px 20px;
-            background-color: #333;
+            background-color: #000;
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
             margin-right: 10px;
+            transition: background-color 0.3s;
         }
         .copy-button:hover {
-            background-color: #555;
+            background-color: #FF0000;
         }
         .button-container {
             display: flex;
             gap: 10px;
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
     </style>
 </head>
